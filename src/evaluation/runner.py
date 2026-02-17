@@ -24,7 +24,7 @@ from tqdm import tqdm
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from utils.llm import create_llm, get_cost
+from utils.llm import get_cost
 from evaluation.answer_validator import validate_mcq, validate_short_text
 
 # Configuration
@@ -165,14 +165,11 @@ class EvaluationRunner:
     """Run LLM evaluation on exam dataset."""
     
     def __init__(self, model_id: str, timeout: int = DEFAULT_TIMEOUT):
-        """model_id: key from MODELS dict (e.g. 'openai/gpt-5.2')."""
-        from config.models import MODELS
-        
-        if model_id not in MODELS:
-            raise ValueError(f"Unknown model: {model_id}. Available: {list(MODELS.keys())}")
-        
+        """model_id: configured model key or dynamic ollama:<name>."""
+        from config.models import get_model
+
         self.model_name = model_id  # Full ID with provider
-        self.llm = MODELS[model_id]
+        self.llm = get_model(model_id)
         self.timeout = timeout
     
     def load_dataset(self, dataset_path: str) -> Dict:

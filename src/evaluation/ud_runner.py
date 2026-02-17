@@ -19,7 +19,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from evaluation.ud_parser import Token, Sentence
 from utils.llm import get_cost
-from config.models import MODELS
+from config.models import get_model
 
 
 # ============================================================================
@@ -246,9 +246,6 @@ async def evaluate_sentence(llm, task: str, sentence: Sentence) -> dict:
 
 async def run_benchmark(model_name: str, force: bool = False) -> dict:
     """Run full benchmark (POS, Lemma, DEP) with checkpoint support."""
-    if model_name not in MODELS:
-        raise ValueError(f"Unknown model: {model_name}. Use one from config/models.py")
-    
     model_short = model_name.split("/")[-1]
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     result_path = RESULTS_DIR / f"{model_short}.json"
@@ -270,7 +267,7 @@ async def run_benchmark(model_name: str, force: bool = False) -> dict:
         print(f"   📂 Resuming from checkpoint: {len(completed_results)} items done")
     
     sentences = load_benchmark()
-    llm = MODELS[model_name]  # Use LLM directly, no structured output wrapper
+    llm = get_model(model_name)  # Supports configured models and ollama:<name>
     sem = asyncio.Semaphore(16)
     
     # Build list of pending work: (task, sentence) combinations

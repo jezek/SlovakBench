@@ -118,12 +118,31 @@ def evaluate_exam(
     model: Optional[str] = typer.Option(None, "--model", "-m", help="Single model to evaluate"),
     force: bool = typer.Option(False, "--force", "-f", help="Re-run even if results exist"),
     list_datasets: bool = typer.Option(False, "--list", "-l", help="List available datasets"),
+    list_ollama: bool = typer.Option(False, "--list-ollama-models", help="List available Ollama models"),
 ):
-    """Run exam benchmark evaluation. Without --model, runs all models from config."""
+    """Run exam benchmark evaluation. Without --model, runs all configured models."""
     from src.evaluation.runner import EvaluationRunner, save_results
-    from config.models import MODELS
-    
+    from config.models import get_configured_model_names, get_model
+    from src.utils.llm import list_ollama_models
+
+    configured_models = get_configured_model_names()
     datasets = get_processed_datasets()
+
+    if list_ollama:
+        try:
+            ollama_models = list_ollama_models()
+        except RuntimeError as e:
+            typer.echo(f"❌ {e}")
+            raise typer.Exit(1)
+
+        if not ollama_models:
+            typer.echo("⚠️  No Ollama models found")
+            raise typer.Exit(0)
+
+        typer.echo("🦙 Ollama models:")
+        for name in ollama_models:
+            typer.echo(f"  ollama:{name}")
+        raise typer.Exit(0)
     
     if list_datasets:
         from rich.console import Console
@@ -135,14 +154,14 @@ def evaluate_exam(
         console.print(f"\n📚 [bold]Available Datasets (Years):[/bold] {', '.join(map(str, sorted(datasets.keys())))}")
         
         # Status Table
-        table = Table(title=f"🤖 Model Evaluation Status ({len(MODELS)} configured)")
+        table = Table(title=f"🤖 Model Evaluation Status ({len(configured_models)} configured)")
         table.add_column("Model Identifier", style="cyan")
         
         sorted_years = sorted(datasets.keys())
         for y in sorted_years:
             table.add_column(str(y), justify="center")
             
-        for m in MODELS:
+        for m in configured_models:
             model_short = m.split("/")[-1]
             row = [model_short]
             
@@ -171,16 +190,21 @@ def evaluate_exam(
     
     # Determine models
     if model:
-        # Validate model is in config
-        if model not in MODELS:
-            typer.echo(f"❌ Unknown model: {model}")
-            typer.echo(f"   Available models:")
-            for m in MODELS:
-                typer.echo(f"     {m}")
+        try:
+            get_model(model)
+        except ValueError as e:
+            typer.echo(f"❌ {e}")
+            if model.startswith("ollama:"):
+                try:
+                    typer.echo("   Available Ollama models:")
+                    for name in list_ollama_models():
+                        typer.echo(f"     ollama:{name}")
+                except RuntimeError:
+                    pass
             raise typer.Exit(1)
         models_to_eval = [model]
     else:
-        models_to_eval = MODELS
+        models_to_eval = configured_models
     
     # Track what needs to be done
     tasks = []
@@ -1098,17 +1122,35 @@ def retry(
 
 @evaluate_app.command("ud")
 def evaluate_ud(
-    model: Optional[str] = typer.Option(None, "--model", "-m", help="Model to evaluate (from config/models.py)"),
+    model: Optional[str] = typer.Option(None, "--model", "-m", help="Configured model or ollama:<name>"),
     report_only: bool = typer.Option(False, "--report", "-r", help="Show results only"),
     force: bool = typer.Option(False, "--force", "-f", help="Re-run even if results exist"),
+    list_ollama: bool = typer.Option(False, "--list-ollama-models", help="List available Ollama models"),
 ):
     """Run UD Slovak SNK benchmark (POS, Lemma, DEP) on curated 32-sentence dataset."""
     import asyncio
     from rich.console import Console
     from rich.table import Table
-    from config.models import MODELS
+    from config.models import get_configured_model_names, get_model
+    from src.utils.llm import list_ollama_models
     
     console = Console()
+
+    if list_ollama:
+        try:
+            ollama_models = list_ollama_models()
+        except RuntimeError as e:
+            console.print(f"[red]❌ {e}[/red]")
+            raise typer.Exit(1)
+
+        if not ollama_models:
+            console.print("[yellow]⚠️ No Ollama models found[/yellow]")
+            raise typer.Exit(0)
+
+        console.print("\n[bold]🦙 Ollama models:[/bold]")
+        for name in ollama_models:
+            console.print(f"  ollama:{name}")
+        raise typer.Exit(0)
     
     # Report mode
     if report_only:
@@ -1147,13 +1189,23 @@ def evaluate_ud(
     
     # Get models to run
     if model:
-        if model not in MODELS:
-            console.print(f"[red]❌ Unknown model: {model}[/red]")
-            console.print(f"[dim]Available: {', '.join(MODELS.keys())}[/dim]")
+        try:
+            get_model(model)
+        except ValueError as e:
+            console.print(f"[red]❌ {e}[/red]")
+            if model.startswith("ollama:"):
+                try:
+                    ollama_names = list_ollama_models()
+                    if ollama_names:
+                        console.print("[dim]Available Ollama models:[/dim]")
+                        for name in ollama_names:
+                            console.print(f"[dim]  ollama:{name}[/dim]")
+                except RuntimeError:
+                    pass
             raise typer.Exit(1)
         models_to_run = [model]
     else:
-        models_to_run = list(MODELS.keys())
+        models_to_run = get_configured_model_names()
     
     # Count sentences from benchmark
     benchmark_path = Path("data/processed/ud_snk/benchmark.json")

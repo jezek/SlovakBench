@@ -1,5 +1,5 @@
-"""Model configuration - simple dict with model_id -> LLM instance."""
-from src.utils.llm import create_llm
+"""Model configuration + dynamic model resolution helpers."""
+from src.utils.llm import create_llm, is_ollama_model, list_ollama_models
 
 # =============================================================================
 # MODEL DEFINITIONS
@@ -248,3 +248,39 @@ MODELS = {
 #     "microsoft/phi-4-multimodal-instruct",
 #     "microsoft/phi-4-reasoning-plus",
 # ]
+
+
+def get_configured_model_names() -> list[str]:
+    """Return statically configured model identifiers."""
+    return list(MODELS.keys())
+
+
+def get_model(model_id: str):
+    """Return LLM client for configured or dynamic Ollama model."""
+    if model_id in MODELS:
+        return MODELS[model_id]
+
+    if is_ollama_model(model_id):
+        return create_llm(model_id, backend="ollama")
+
+    available = ", ".join(get_configured_model_names()[:10])
+    raise ValueError(
+        f"Unknown model: {model_id}. "
+        f"Use a configured model or ollama:<name>. "
+        f"Sample configured models: {available}"
+    )
+
+
+def get_available_model_names(include_ollama: bool = False) -> list[str]:
+    """Return configured models and optionally dynamically discovered Ollama models."""
+    models = get_configured_model_names()
+
+    if not include_ollama:
+        return models
+
+    try:
+        ollama_models = [f"ollama:{name}" for name in list_ollama_models()]
+    except RuntimeError:
+        ollama_models = []
+
+    return models + ollama_models
