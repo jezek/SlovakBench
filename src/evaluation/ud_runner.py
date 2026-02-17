@@ -244,7 +244,7 @@ async def evaluate_sentence(llm, task: str, sentence: Sentence) -> dict:
         return {"correct": 0, "total": len(gold), "cost": 0, "latency": 0, "error": str(e)[:100]}
 
 
-async def run_benchmark(model_name: str, force: bool = False) -> dict:
+async def run_benchmark(model_name: str, force: bool = False, concurrency: int = 1) -> dict:
     """Run full benchmark (POS, Lemma, DEP) with checkpoint support."""
     model_short = model_name.split("/")[-1]
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -268,7 +268,7 @@ async def run_benchmark(model_name: str, force: bool = False) -> dict:
     
     sentences = load_benchmark()
     llm = get_model(model_name)  # Supports configured models and ollama:<name>
-    sem = asyncio.Semaphore(16)
+    sem = asyncio.Semaphore(concurrency)
     
     # Build list of pending work: (task, sentence) combinations
     tasks = ["pos", "lemma", "dep"]

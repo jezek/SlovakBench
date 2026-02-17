@@ -320,7 +320,7 @@ Príklad: "epiteton" (nie "epiteton (básnický prívlastok)")"""
             error=error,
         )
     
-    def run(self, dataset_path: str, concurrency: int = 32, resume: bool = True) -> EvaluationResult:
+    def run(self, dataset_path: str, concurrency: int = 1, resume: bool = True) -> EvaluationResult:
         """Execute evaluation on dataset with concurrent processing and checkpointing."""
         import asyncio
         

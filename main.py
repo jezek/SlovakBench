@@ -119,6 +119,8 @@ def evaluate_exam(
     force: bool = typer.Option(False, "--force", "-f", help="Re-run even if results exist"),
     list_datasets: bool = typer.Option(False, "--list", "-l", help="List available datasets"),
     list_ollama: bool = typer.Option(False, "--list-ollama-models", help="List available Ollama models"),
+    timeout: int = typer.Option(300, "--timeout", help="Per-question timeout in seconds", min=1),
+    concurrency: int = typer.Option(1, "--concurrency", help="Number of concurrent requests", min=1),
 ):
     """Run exam benchmark evaluation. Without --model, runs all configured models."""
     from src.evaluation.runner import EvaluationRunner, save_results
@@ -228,8 +230,8 @@ def evaluate_exam(
         typer.echo(f"\n🧪 {model_short} | {y}")
         
         try:
-            runner = EvaluationRunner(m)
-            result = runner.run(str(dataset_path))
+            runner = EvaluationRunner(m, timeout=timeout)
+            result = runner.run(str(dataset_path), concurrency=concurrency)
             
             output_dir = RESULTS_DIR / str(y)
             saved_path = save_results(result, str(output_dir))
@@ -1126,6 +1128,7 @@ def evaluate_ud(
     report_only: bool = typer.Option(False, "--report", "-r", help="Show results only"),
     force: bool = typer.Option(False, "--force", "-f", help="Re-run even if results exist"),
     list_ollama: bool = typer.Option(False, "--list-ollama-models", help="List available Ollama models"),
+    concurrency: int = typer.Option(1, "--concurrency", help="Number of concurrent requests", min=1),
 ):
     """Run UD Slovak SNK benchmark (POS, Lemma, DEP) on curated 32-sentence dataset."""
     import asyncio
@@ -1225,7 +1228,7 @@ def evaluate_ud(
     
     for m in models_to_run:
         try:
-            asyncio.run(run_benchmark(m, force=force))
+            asyncio.run(run_benchmark(m, force=force, concurrency=concurrency))
         except Exception as e:
             console.print(f"[red]❌ {m}: {str(e)[:80]}[/red]")
         console.print()
