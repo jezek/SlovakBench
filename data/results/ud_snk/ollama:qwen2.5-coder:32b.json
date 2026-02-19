@@ -1,0 +1,44 @@
+{
+  "model_name": "ollama:qwen2.5-coder:32b",
+  "timestamp": "2026-02-19T15:23:56.375426",
+  "total_sentences": 10,
+  "accuracy": 0.5968253968253968,
+  "pos_accuracy": 0.819047619047619,
+  "lemma_accuracy": 0.7238095238095238,
+  "dep_accuracy": 0.24761904761904763,
+  "total_cost_usd": 0.0,
+  "avg_latency_ms": 4205.060036977132,
+  "error_count": 0,
+  "tasks": {
+    "pos": {
+      "task": "pos",
+      "accuracy": 0.819047619047619,
+      "correct": 86,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 3649.1527795791626,
+      "errors": 0,
+      "first_error": null
+    },
+    "lemma": {
+      "task": "lemma",
+      "accuracy": 0.7238095238095238,
+      "correct": 76,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 4036.565089225769,
+      "errors": 0,
+      "first_error": null
+    },
+    "dep": {
+      "task": "dep",
+      "accuracy": 0.24761904761904763,
+      "correct": 26,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 4929.462242126465,
+      "errors": 0,
+      "first_error": null
+    }
+  }
+}
