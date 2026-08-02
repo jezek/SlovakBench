@@ -1,5 +1,11 @@
 """Model configuration + dynamic model resolution helpers."""
-from src.utils.llm import create_llm, is_ollama_model, list_ollama_models
+from src.utils.llm import (
+    create_llm,
+    is_llamacpp_model,
+    is_ollama_model,
+    list_llamacpp_models,
+    list_ollama_models,
+)
 
 # =============================================================================
 # MODEL DEFINITIONS
@@ -256,31 +262,41 @@ def get_configured_model_names() -> list[str]:
 
 
 def get_model(model_id: str):
-    """Return LLM client for configured or dynamic Ollama model."""
+    """Return LLM client for configured or dynamic local-provider model."""
     if model_id in MODELS:
         return MODELS[model_id]
 
     if is_ollama_model(model_id):
         return create_llm(model_id, backend="ollama")
 
+    if is_llamacpp_model(model_id):
+        return create_llm(model_id, backend="llamacpp")
+
     available = ", ".join(get_configured_model_names()[:10])
     raise ValueError(
         f"Unknown model: {model_id}. "
-        f"Use a configured model or ollama:<name>. "
+        f"Use a configured model, ollama:<name>, or llamacpp:<name>. "
         f"Sample configured models: {available}"
     )
 
 
-def get_available_model_names(include_ollama: bool = False) -> list[str]:
-    """Return configured models and optionally dynamically discovered Ollama models."""
+def get_available_model_names(include_ollama: bool = False, include_llamacpp: bool = False) -> list[str]:
+    """Return configured models and optionally dynamically discovered local models."""
     models = get_configured_model_names()
 
-    if not include_ollama:
+    if not include_ollama and not include_llamacpp:
         return models
 
+    local_models = []
     try:
-        ollama_models = [f"ollama:{name}" for name in list_ollama_models()]
+        if include_ollama:
+            local_models.extend(f"ollama:{name}" for name in list_ollama_models())
     except RuntimeError:
-        ollama_models = []
+        pass
+    try:
+        if include_llamacpp:
+            local_models.extend(f"llamacpp:{name}" for name in list_llamacpp_models())
+    except RuntimeError:
+        pass
 
-    return models + ollama_models
+    return models + local_models

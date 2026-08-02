@@ -119,13 +119,14 @@ def evaluate_exam(
     force: bool = typer.Option(False, "--force", "-f", help="Re-run even if results exist"),
     list_datasets: bool = typer.Option(False, "--list", "-l", help="List available datasets"),
     list_ollama: bool = typer.Option(False, "--list-ollama-models", help="List available Ollama models"),
+    list_llamacpp: bool = typer.Option(False, "--list-llamacpp-models", help="List available llama.cpp models"),
     timeout: int = typer.Option(300, "--timeout", help="Per-question timeout in seconds", min=1),
     concurrency: int = typer.Option(1, "--concurrency", help="Number of concurrent requests", min=1),
 ):
     """Run exam benchmark evaluation. Without --model, runs all configured models."""
     from src.evaluation.runner import EvaluationRunner, save_results
     from config.models import get_configured_model_names, get_model
-    from src.utils.llm import list_ollama_models
+    from src.utils.llm import list_llamacpp_models, list_ollama_models
 
     configured_models = get_configured_model_names()
     datasets = get_processed_datasets()
@@ -144,6 +145,22 @@ def evaluate_exam(
         typer.echo("🦙 Ollama models:")
         for name in ollama_models:
             typer.echo(f"  ollama:{name}")
+        raise typer.Exit(0)
+
+    if list_llamacpp:
+        try:
+            llamacpp_models = list_llamacpp_models()
+        except RuntimeError as e:
+            typer.echo(f"❌ {e}")
+            raise typer.Exit(1)
+
+        if not llamacpp_models:
+            typer.echo("⚠️  No llama.cpp models found")
+            raise typer.Exit(0)
+
+        typer.echo("llama.cpp models:")
+        for name in llamacpp_models:
+            typer.echo(f"  llamacpp:{name}")
         raise typer.Exit(0)
     
     if list_datasets:
@@ -201,6 +218,13 @@ def evaluate_exam(
                     typer.echo("   Available Ollama models:")
                     for name in list_ollama_models():
                         typer.echo(f"     ollama:{name}")
+                except RuntimeError:
+                    pass
+            elif model.startswith("llamacpp:"):
+                try:
+                    typer.echo("   Available llama.cpp models:")
+                    for name in list_llamacpp_models():
+                        typer.echo(f"     llamacpp:{name}")
                 except RuntimeError:
                     pass
             raise typer.Exit(1)
@@ -1124,10 +1148,11 @@ def retry(
 
 @evaluate_app.command("ud")
 def evaluate_ud(
-    model: Optional[str] = typer.Option(None, "--model", "-m", help="Configured model or ollama:<name>"),
+    model: Optional[str] = typer.Option(None, "--model", "-m", help="Configured model, ollama:<name>, or llamacpp:<name>"),
     report_only: bool = typer.Option(False, "--report", "-r", help="Show results only"),
     force: bool = typer.Option(False, "--force", "-f", help="Re-run even if results exist"),
     list_ollama: bool = typer.Option(False, "--list-ollama-models", help="List available Ollama models"),
+    list_llamacpp: bool = typer.Option(False, "--list-llamacpp-models", help="List available llama.cpp models"),
     concurrency: int = typer.Option(1, "--concurrency", help="Number of concurrent requests", min=1),
 ):
     """Run UD Slovak SNK benchmark (POS, Lemma, DEP) on curated 32-sentence dataset."""
@@ -1135,7 +1160,7 @@ def evaluate_ud(
     from rich.console import Console
     from rich.table import Table
     from config.models import get_configured_model_names, get_model
-    from src.utils.llm import list_ollama_models
+    from src.utils.llm import list_llamacpp_models, list_ollama_models
     
     console = Console()
 
@@ -1153,6 +1178,22 @@ def evaluate_ud(
         console.print("\n[bold]🦙 Ollama models:[/bold]")
         for name in ollama_models:
             console.print(f"  ollama:{name}")
+        raise typer.Exit(0)
+
+    if list_llamacpp:
+        try:
+            llamacpp_models = list_llamacpp_models()
+        except RuntimeError as e:
+            console.print(f"[red]❌ {e}[/red]")
+            raise typer.Exit(1)
+
+        if not llamacpp_models:
+            console.print("[yellow]⚠️ No llama.cpp models found[/yellow]")
+            raise typer.Exit(0)
+
+        console.print("\n[bold]llama.cpp models:[/bold]")
+        for name in llamacpp_models:
+            console.print(f"  llamacpp:{name}")
         raise typer.Exit(0)
     
     # Report mode
@@ -1203,6 +1244,15 @@ def evaluate_ud(
                         console.print("[dim]Available Ollama models:[/dim]")
                         for name in ollama_names:
                             console.print(f"[dim]  ollama:{name}[/dim]")
+                except RuntimeError:
+                    pass
+            elif model.startswith("llamacpp:"):
+                try:
+                    llamacpp_names = list_llamacpp_models()
+                    if llamacpp_names:
+                        console.print("[dim]Available llama.cpp models:[/dim]")
+                        for name in llamacpp_names:
+                            console.print(f"[dim]  llamacpp:{name}[/dim]")
                 except RuntimeError:
                     pass
             raise typer.Exit(1)
