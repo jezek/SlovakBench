@@ -1,0 +1,44 @@
+{
+  "model_name": "llamacpp:Qwen3.8-27B",
+  "timestamp": "2026-08-19T03:47:45.793687",
+  "total_sentences": 10,
+  "accuracy": 0.5238095238095238,
+  "pos_accuracy": 0.6952380952380952,
+  "lemma_accuracy": 0.8285714285714286,
+  "dep_accuracy": 0.047619047619047616,
+  "total_cost_usd": 0.0,
+  "avg_latency_ms": 210871.46382331848,
+  "error_count": 0,
+  "tasks": {
+    "pos": {
+      "task": "pos",
+      "accuracy": 0.6952380952380952,
+      "correct": 73,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 111550.82786083221,
+      "errors": 0,
+      "first_error": null
+    },
+    "lemma": {
+      "task": "lemma",
+      "accuracy": 0.8285714285714286,
+      "correct": 87,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 69811.73861026764,
+      "errors": 0,
+      "first_error": null
+    },
+    "dep": {
+      "task": "dep",
+      "accuracy": 0.047619047619047616,
+      "correct": 5,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 451251.8249988556,
+      "errors": 0,
+      "first_error": null
+    }
+  }
+}

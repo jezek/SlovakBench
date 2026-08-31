@@ -32,11 +32,13 @@ def is_local_model(model_id: str) -> bool:
 
 
 def normalize_model_name(model_id: str) -> str:
-    """Strip SlovakBench local-provider prefix if present."""
+    """Strip the provider prefix and optional result descriptor."""
     if is_ollama_model(model_id):
-        return model_id[len(OLLAMA_PREFIX):]
+        normalized = model_id[len(OLLAMA_PREFIX):]
+        return normalized.split("::", 1)[0]
     if is_llamacpp_model(model_id):
-        return model_id[len(LLAMACPP_PREFIX):]
+        normalized = model_id[len(LLAMACPP_PREFIX):]
+        return normalized.split("::", 1)[0]
     return model_id
 
 

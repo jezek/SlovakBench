@@ -1,0 +1,44 @@
+{
+  "model_name": "llamacpp:Ornith-1.5-35B-A3B-Q6_K",
+  "timestamp": "2026-08-23T14:48:12.190193",
+  "total_sentences": 10,
+  "accuracy": 0.6603174603174603,
+  "pos_accuracy": 0.8666666666666667,
+  "lemma_accuracy": 0.7904761904761904,
+  "dep_accuracy": 0.3238095238095238,
+  "total_cost_usd": 0.0,
+  "avg_latency_ms": 39534.50508117676,
+  "error_count": 0,
+  "tasks": {
+    "pos": {
+      "task": "pos",
+      "accuracy": 0.8666666666666667,
+      "correct": 91,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 11573.830461502075,
+      "errors": 0,
+      "first_error": null
+    },
+    "lemma": {
+      "task": "lemma",
+      "accuracy": 0.7904761904761904,
+      "correct": 83,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 27172.13008403778,
+      "errors": 0,
+      "first_error": null
+    },
+    "dep": {
+      "task": "dep",
+      "accuracy": 0.3238095238095238,
+      "correct": 34,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 79857.55469799042,
+      "errors": 0,
+      "first_error": null
+    }
+  }
+}
