@@ -1,5 +1,5 @@
 {
-  "model_name": "llamacpp:Qwen3.8-27B",
+  "model_name": "llamacpp:Qwen3.8-27B-UD-Q6_K_XL",
   "timestamp": "2026-08-19T03:47:45.793687",
   "total_sentences": 10,
   "accuracy": 0.5238095238095238,

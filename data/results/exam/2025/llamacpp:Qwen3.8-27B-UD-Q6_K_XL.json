@@ -1,5 +1,5 @@
 {
-  "model_name": "llamacpp:Qwen3.8-27B",
+  "model_name": "llamacpp:Qwen3.8-27B-UD-Q6_K_XL",
   "dataset_path": "data/processed/exam/2025.json",
   "timestamp": "2026-08-18T01:31:02.832275",
   "total_questions": 64,

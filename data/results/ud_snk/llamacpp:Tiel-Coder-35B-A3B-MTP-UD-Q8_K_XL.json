@@ -1,0 +1,44 @@
+{
+  "model_name": "llamacpp:Tiel-Coder-35B-A3B-MTP-UD-Q8_K_XL",
+  "timestamp": "2026-09-08T02:40:00.805331",
+  "total_sentences": 10,
+  "accuracy": 0.638095238095238,
+  "pos_accuracy": 0.8761904761904762,
+  "lemma_accuracy": 0.7904761904761904,
+  "dep_accuracy": 0.24761904761904763,
+  "total_cost_usd": 0.0,
+  "avg_latency_ms": 50144.51437791189,
+  "error_count": 0,
+  "tasks": {
+    "pos": {
+      "task": "pos",
+      "accuracy": 0.8761904761904762,
+      "correct": 92,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 19826.058554649353,
+      "errors": 0,
+      "first_error": null
+    },
+    "lemma": {
+      "task": "lemma",
+      "accuracy": 0.7904761904761904,
+      "correct": 83,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 17130.21399974823,
+      "errors": 0,
+      "first_error": null
+    },
+    "dep": {
+      "task": "dep",
+      "accuracy": 0.24761904761904763,
+      "correct": 26,
+      "total": 105,
+      "cost_usd": 0.0,
+      "avg_latency_ms": 113477.27057933807,
+      "errors": 0,
+      "first_error": null
+    }
+  }
+}
